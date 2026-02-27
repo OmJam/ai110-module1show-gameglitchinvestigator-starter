@@ -1,5 +1,7 @@
 import random
 import streamlit as st
+from logic_utils import check_guess
+
 
 def get_range_for_difficulty(difficulty: str):
     if difficulty == "Easy":
@@ -29,22 +31,31 @@ def parse_guess(raw: str):
     return True, value, None
 
 
-def check_guess(guess, secret):
-    if guess == secret:
-        return "Win", "🎉 Correct!"
+# FIXME: Logic breaks here, seems like the return values are not consistent, Says Go Higher when the guess is higher than
+# the secret, same happens vice versa. Also there are two return values.
 
-    try:
-        if guess > secret:
-            return "Too High", "📈 Go HIGHER!"
-        else:
-            return "Too Low", "📉 Go LOWER!"
-    except TypeError:
-        g = str(guess)
-        if g == secret:
-            return "Win", "🎉 Correct!"
-        if g > secret:
-            return "Too High", "📈 Go HIGHER!"
-        return "Too Low", "📉 Go LOWER!"
+# Play the game and guess a number you know is higher than the secret (use the Developer Debug Info expander to see the secret).
+# What does the hint say — does it match what you'd expect? Now look at check_guess in app.py.
+# Trace what happens when guess > secret: what is the outcome, and what is the message?
+# Read them aloud together — do they agree with each other?
+
+
+# def check_guess(guess, secret):
+#     if guess == secret:
+#         return "Win", "🎉 Correct!"
+
+#     try:
+#         if guess > secret:
+#             return "Too High", "📉 Go LOWER!"
+#         else:
+#             return "Too Low", "📈 Go HIGHER!"
+#     except TypeError:
+#         g = str(guess)
+#         if g == secret:
+#             return "Win", "🎉 Correct!"
+#         if g > secret:
+#             return "Too High", "📉 Go LOWER!"
+#         return "Too Low", "📈 Go HIGHER!"
 
 
 def update_score(current_score: int, outcome: str, attempt_number: int):
@@ -63,6 +74,7 @@ def update_score(current_score: int, outcome: str, attempt_number: int):
         return current_score - 5
 
     return current_score
+
 
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 
@@ -118,10 +130,7 @@ with st.expander("Developer Debug Info"):
     st.write("Difficulty:", difficulty)
     st.write("History:", st.session_state.history)
 
-raw_guess = st.text_input(
-    "Enter your guess:",
-    key=f"guess_input_{difficulty}"
-)
+raw_guess = st.text_input("Enter your guess:", key=f"guess_input_{difficulty}")
 
 col1, col2, col3 = st.columns(3)
 with col1:
@@ -131,9 +140,19 @@ with col2:
 with col3:
     show_hint = st.checkbox("Show hint", value=True)
 
+# FIXME: When clicking reset game, only the secret and attempts are reset, also if you reach the max attempts and try to
+# click new game, it does not reset the game and allow you to Submit a new guess
+
+# HINT: "After you run out of attempts and lose, click 'New Game' and try submitting a guess. What happens?
+# It seems like the game is still over — why? Open the Developer Debug Info expander and look at the status value.
+# Now search the code for where status gets changed, and ask yourself: does the reset button ever touch it?"
+
 if new_game:
     st.session_state.attempts = 0
-    st.session_state.secret = random.randint(1, 100)
+    st.session_state.secret = random.randint(low, high)
+    st.session_state.status = "playing"
+    st.session_state.score = 0
+    st.session_state.history = []
     st.success("New game started.")
     st.rerun()
 
