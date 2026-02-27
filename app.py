@@ -31,6 +31,7 @@ def parse_guess(raw: str):
     return True, value, None
 
 
+# FIX: Refactored logic into logic_utils.py using Claude Code Edit mode
 # FIXME: Logic breaks here, seems like the return values are not consistent, Says Go Higher when the guess is higher than
 # the secret, same happens vice versa. Also there are two return values.
 
@@ -140,6 +141,7 @@ with col2:
 with col3:
     show_hint = st.checkbox("Show hint", value=True)
 
+# FIX: Secret stay in bound of low and high, resets status, score, and history when clicking reset game
 # FIXME: When clicking reset game, only the secret and attempts are reset, also if you reach the max attempts and try to
 # click new game, it does not reset the game and allow you to Submit a new guess
 
